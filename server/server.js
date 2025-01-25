@@ -6,163 +6,56 @@ const gRPCObject = gRPC.loadPackageDefinition(packageDefinition);
 
 const questionPackage = gRPCObject.question;
 
-const question = [
-{
-  "_id": {
-    "$oid": "665568f4ac3f6205c943a937"
-  },
-  "type": "ANAGRAM",
-  "anagramType": "WORD",
-  "blocks": [
-    {
-      "text": "T",
-      "showInOption": true,
-      "isAnswer": true
-    },
-    {
-      "text": "O",
-      "showInOption": true,
-      "isAnswer": true
-    },
-    {
-      "text": "Y",
-      "showInOption": true,
-      "isAnswer": true
-    }
-  ],
-  "siblingId": {
-    "$oid": "66555f1a3735a7caf45b6f09"
-  },
-  "solution": "TOY",
-  "title": "Rearrange the letters to form a word"
-},
-{
-  "_id": {
-    "$oid": "6654d0bc8571bf23e1bef300"
-  },
-  "type": "ANAGRAM",
-  "anagramType": "SENTENCE",
-  "blocks": [
-    {
-      "text": "I started learning",
-      "showInOption": true,
-      "isAnswer": true
-    },
-    {
-      "text": "to play the guitar",
-      "showInOption": true,
-      "isAnswer": true
-    },
-    {
-      "text": "because",
-      "showInOption": true,
-      "isAnswer": true
-    },
-    {
-      "text": "I dream of forming a band",
-      "showInOption": true,
-      "isAnswer": true
-    },
-    {
-      "text": "and playing",
-      "showInOption": true,
-      "isAnswer": true
-    },
-    {
-      "text": "in concerts.",
-      "showInOption": true,
-      "isAnswer": true
-    }
-  ],
-  "siblingId": {
-    "$oid": "6654bf1de7b8dd361ba05bf3"
-  },
-  "solution": "I started learning to play the guitar because I dream of forming a band and playing in concerts.",
-  "title": "Rearrange the words to form a sentence"
-},
-{
-  "_id": {
-    "$oid": "6655b1c5d3d666003d3b1d83"
-  },
-  "type": "MCQ",
-  "options": [
-    {
-      "text": "under",
-      "isCorrectAnswer": true
-    },
-    {
-      "text": "below",
-      "isCorrectAnswer": false
-    },
-    {
-      "text": "above",
-      "isCorrectAnswer": false
-    },
-    {
-      "text": "over",
-      "isCorrectAnswer": false
-    }
-  ],
-  "siblingId": {
-    "$oid": "66554e47c59979a52d16b1e9"
-  },
-  "title": "In my previous job, I often had to complete tasks ______ tight deadlines."
-},
-{
-  "_id": {
-    "$oid": "6655b0fc33dd0fc2f6a62524"
-  },
-  "type": "MCQ",
-  "options": [
-    {
-      "text": "esteemed",
-      "isCorrectAnswer": true
-    },
-    {
-      "text": "esteeming",
-      "isCorrectAnswer": false
-    },
-    {
-      "text": "esteem",
-      "isCorrectAnswer": false
-    },
-    {
-      "text": "esteems",
-      "isCorrectAnswer": false
-    }
-  ],
-  "siblingId": {
-    "$oid": "66554dee76f0333f5986f5aa"
-  },
-  "title": "My commitment to journalistic integrity, combined with my proficiency in leveraging new media platforms, makes me a well-suited candidate to join your ______ team and contribute to your mission of delivering compelling news stories."
-},
-]
+const Question = require('./model');
 
-function GetAllQuestions(call, callback) {
-    callback(null, { questions: question });
+const mongoose = require('mongoose');
+mongoose.connect('mongodb+srv://vipindev665:bX0opTBpHPF9Qtz6@cluster0.jnbgy.mongodb.net').then(() => {
+    console.log('Connected to MongoDB');
+}).catch((error) => {
+    console.error(error);
+} );
+
+
+async function GetAllQuestions(call, callback) {
+  try {
+    const questions = await Question.find({}).limit(20);
+    callback(null, { questions });
+  } catch (err) {
+    callback(err, null);
+  }
+
 }
 
-function GetQuestionByType(call, callback){
+async function GetQuestionByType(call, callback){
+  try{
     const type = call.request.type;
-    console.log("Type: ", type);
-    const questionsByType = question.filter(q => q.type == type);
-    callback(null, { questions: questionsByType });
+    const questionByType = await Question.find({ type: type }).limit(20);
+    callback(null, { questions: questionByType });
+  }
+  catch(err){
+    callback(err, null);
+  }
 }
 
-function GetQuestionBySearchString(call, callback){
+async function GetQuestionBySearchString(call, callback){
+  try{
     const searchString = call.request.searchString;
-    console.log("Search String: ", searchString);
-    const questionsBySearchString = question.filter(q => q.title.includes(searchString));
-    callback(null, { questions: questionsBySearchString });   
+    const questionBySearchString = await Question.find({ title: { $regex: searchString, $options: 'i' } }).limit(20);
+    callback(null, { questions: questionBySearchString });
+  }catch(err){
+    callback(err, null);
+  }
 }
 
-function GetQuestionByTypeAndSearchString(call, callback){
+async function GetQuestionByTypeAndSearchString(call, callback){
+  try{
     const type = call.request.type;
     const searchString = call.request.searchString;
-    console.log("Type: ", type);
-    console.log("Search String: ", searchString);
-    const questionsByTypeAndSearchString = question.filter(q => q.type == type && q.title.includes(searchString));
-    callback(null, { questions: questionsByTypeAndSearchString });
+    const questionByTypeAndSearchString = await Question.find({ type: type, title: { $regex: searchString, $options: 'i' } }).limit(20);
+    callback(null, { questions: questionByTypeAndSearchString });
+  } catch(err){
+    callback(err, null);
+  }
 }
 
 const server = new gRPC.Server();
@@ -173,11 +66,11 @@ server.addService(questionPackage.QuestionService.service, {
     GetQuestionByTypeAndSearchString
 });
 
-server.bindAsync('localhost:4000', gRPC.ServerCredentials.createInsecure(), (error) => {
+server.bindAsync('0.0.0.0:9090', gRPC.ServerCredentials.createInsecure(), (error) => {
     if(error) {
         console.error(error);
         return;
     }
-    console.log('Server is running on http://localhost:4000');
+    console.log('Server is running on http://0.0.0.0:9090');
     server.start();
 })
