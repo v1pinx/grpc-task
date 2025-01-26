@@ -1,0 +1,30 @@
+version: '3.8'
+
+services:
+  node:
+    image: v1pinx/node-grpc-search2:v1
+    container_name: node1
+    ports:
+      - "9090:9090"
+    environment:
+      - PORT=9090
+      - MONGODB_URI=mongodb+srv://your-mongodb-uri
+    networks:
+      - test-net
+    restart: always
+
+  envoy:
+    image: v1pinx/envoy-node:v1
+    container_name: envoy-net1
+    ports:
+      - "8080:8080"
+      - "9901:9901"
+    volumes:
+      - "./envoy.yaml:/etc/envoy/envoy.yaml"
+    networks:
+      - test-net
+    restart: always
+
+networks:
+  test-net:
+    driver: bridge
