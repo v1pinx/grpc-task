@@ -119,7 +119,7 @@ cd grpc-task
 
 1.  Ensure you are in the root directory, where the `docker-compose.yml` file is located.
     
-2.  Update the MONGODB_URI with your MONGODB_URI in `docker-compose.yml` or  use the following for testing purposes (Do **not** misuse this):
+2.  Update the MONGODB_URI with your MONGODB_URI in `docker-compose.yml` or  use the following for testing purposes:
 	```
 	MONGODB_URI=mongodb+srv://vipindev665:bX0opTBpHPF9Qtz6@cluster0.jnbgy.mongodb.net
 	```
@@ -137,4 +137,4 @@ cd grpc-task
 ## Notes
 
 -   **MongoDB URI**: Make sure to replace the `MONGODB_URI` in the `.env` and `docker-compose.yml` file with your own MongoDB connection string. You can also use the provided test URI for testing purposes only.
--   **Envoy Proxy**: The Envoy proxy is essential for handling HTTP/2 requests from the frontend to the backend. It helps browsers that do not support HTTP/2 by converting requests to HTTP/1.
+-   **Envoy Proxy**: The Envoy proxy is responsible for handling HTTP/2 traffic from the client and converting it to HTTP/1.1 for compatibility with browsers or clients that do not support HTTP/2.
