@@ -1,0 +1,62 @@
+syntax = 'proto3';
+
+package question;
+
+service QuestionService {
+    rpc GetAllQuestions(AllQuestion) returns (QuestionList) {}
+    rpc GetQuestionByType(QuestionType) returns (QuestionList) {}
+    rpc GetQuestionBySearchString(QuestionBySearchString) returns (QuestionList) {}
+    rpc GetQuestionByTypeAndSearchString(QuestionByTypeAndSearchString) returns (QuestionList) {}
+}
+
+message AllQuestion {
+    int32 page = 1;
+    int32 limit = 2;
+}
+
+message QuestionType {
+    string type = 1;
+    int32 page = 2;
+    int32 limit = 3;
+}
+
+message QuestionBySearchString {
+    string searchString = 1;
+    int32 page = 2;
+    int32 limit = 3;
+} 
+
+message QuestionByTypeAndSearchString {
+    string type = 1;
+    string searchString = 2;
+    int32 page = 3;
+    int32 limit = 4;
+}
+
+message Block {
+    string text = 1;
+    bool showInOption = 2;
+    bool isAnswer = 3;
+}
+
+message Option {
+    string text = 1;
+    bool isCorrectAnswer = 2;
+}
+
+message Question {
+    string id = 1;
+    string type = 2;
+    string anagramType = 3;
+    repeated Block blocks = 4;
+    repeated Option options = 5;
+    string siblingId = 6;
+    string solution = 7;
+    string title = 8;
+}
+
+message QuestionList {
+    repeated Question questions = 1;
+    int32 totalPages = 2;
+    int32 currentPage = 3;
+}
