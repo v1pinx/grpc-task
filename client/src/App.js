@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useMemo } from "react";
 import { QuestionServiceClient } from "./generated/question_grpc_web_pb";
 import {
-  Empty,
+  AllQuestion,
   QuestionType,
   QuestionBySearchString,
   QuestionByTypeAndSearchString,
@@ -9,93 +9,77 @@ import {
 import { Pyramid } from "lucide-react";
 
 import Filter from "./components/Filter";
+import Pagination from "./components/Pagination";
 
-const client = new QuestionServiceClient("http://localhost:8080", null, null);
+
+const client = new QuestionServiceClient(`${process.env.REACT_APP_API_URL}`, null, null);
 
 const App = () => {
   const [questions, setQuestions] = useState([]);
   const [type, setType] = useState("");
   const [searchString, setSearchString] = useState("");
+  const [currentPage, setCurrentPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(1);
+  const [reset, setReset] = useState(false);
 
-  // Fetch all questions on initial load
-  useEffect(() => {
-    const request = new Empty();
-    client.getAllQuestions(request, {}, (err, response) => {
-      if (err) {
-        console.error("Error:", err.message);
-        return;
-      }
-      console.log(response.toObject());
-      setQuestions(response.getQuestionsList());
-    });
-  }, []);
-
-  // Search questions when the user clicks the search button
-  const handleSearch = () => {
-    if (type && searchString) {
-      // Search by type and search string
-      const request = new QuestionByTypeAndSearchString();
-      request.setType(type);
-      request.setSearchstring(searchString);
-
-      client.getQuestionByTypeAndSearchString(request, {}, (err, response) => {
-        if (err) {
-          console.error("Error:", err.message);
-          return;
-        }
-        setQuestions(response.getQuestionsList());
-      });
-    } else if (type) {
-      // Search by type only
-      const request = new QuestionType();
-      request.setType(type);
-
-      client.getQuestionByType(request, {}, (err, response) => {
-        if (err) {
-          console.error("Error:", err.message);
-          return;
-        }
-        setQuestions(response.getQuestionsList());
-      });
-    } else if (searchString) {
-      // Search by search string only
-      const request = new QuestionBySearchString();
-      request.setSearchstring(searchString);
-
-      client.getQuestionBySearchString(request, {}, (err, response) => {
-        if (err) {
-          console.error("Error:", err.message);
-          return;
-        }
-        setQuestions(response.getQuestionsList());
-      });
-    } else {
-      // Fetch all questions if no filters are applied
-      const request = new Empty();
-      client.getAllQuestions(request, {}, (err, response) => {
-        if (err) {
-          console.error("Error:", err.message);
-          return;
-        }
-        setQuestions(response.getQuestionsList());
-      });
-    }
-
-    
+  const onPageChange = (page) => {
+    setCurrentPage(page);
   };
 
-  const shuffleAnagram = useMemo(( ) => {
-    return questions.map((q) => {
-      if(q.getType() == 'ANAGRAM'){
-        return {
-          ...q,
-          blocks: q.getBlocksList().sort(() => Math.random() - 0.5),
-        };
-      } 
-      return q;
-    })
-  }, [questions]);
+  useEffect(() => {
+    fetchQuestions();
+  }, [currentPage, reset]);
 
+  const fetchQuestions = () => {
+    let request;
+
+    if (type && searchString) {
+      request = new QuestionByTypeAndSearchString();
+      request.setType(type);
+      request.setSearchstring(searchString);
+    } else if (type) {
+      request = new QuestionType();
+      request.setType(type);
+    } else if (searchString) {
+      request = new QuestionBySearchString();
+      request.setSearchstring(searchString);
+    } else {
+      request = new AllQuestion();
+    }
+
+    request.setPage(currentPage);
+    request.setLimit(10);
+
+    const method =
+      type && searchString
+        ? client.getQuestionByTypeAndSearchString
+        : type
+        ? client.getQuestionByType
+        : searchString
+        ? client.getQuestionBySearchString
+        : client.getAllQuestions;
+
+    method.call(client, request, {}, (err, response) => {
+      if (err) {
+        console.error("Error fetching questions:", err.message);
+        return;
+      }
+      setQuestions(response.getQuestionsList());
+      setTotalPages(response.getTotalpages());
+    });
+  };
+
+  const handleSearch = () => {
+    setCurrentPage(1);
+    fetchQuestions();
+  };
+
+  const handleReset = () => {
+    setType("");
+    setSearchString("");
+    setCurrentPage(1);
+    setReset(!reset);
+  };
   return (
     <div className="min-h-screen bg-[#0E1313] relative overflow-hidden">
       <Filter
@@ -104,10 +88,10 @@ const App = () => {
         searchString={searchString}
         setSearchString={setSearchString}
         onSearch={handleSearch}
+        onReset={handleReset}
       />
-
-      <div className="max-w-7xl mx-auto px-4 py-6 space-y-8">
-        <h1 className="text-3xl text-white text-center animate-[fadeIn_0.8s_ease-in]">
+      <div className="max-w-7xl mx-auto px-4 space-y-8">
+        <h1 className="text-3xl text-white text-center animate-[slideUp_0.5s_ease-out]">
           <Pyramid className="inline-block mr-2 text-yellow-500" />
           Questions
         </h1>
@@ -125,8 +109,9 @@ const App = () => {
               {questions.map((q, idx) => (
                 <li
                   key={idx}
-                  className="bg-[#3F4444] p-4 rounded-lg text-white hover:bg-[#4a5151] transition-colors duration-300"
+                  className="bg-[#3F4444] p-4 rounded-lg text-white hover:bg-[#4a5151] transition-colors duration-300 relative"
                 >
+                  <p className="text-sm text-gray-400 ">{q.getType()} :</p>
                   <strong className="text-yellow-500 block mb-2">
                     {q.getTitle()}
                   </strong>
@@ -134,7 +119,8 @@ const App = () => {
                     <div>
                       {q
                         .getBlocksList()
-                        .sort(() => Math.random() - 0.5)
+                        .sort()
+                        .reverse()
                         .map((block, index) => (
                           <span key={index}>{block.getText()},&nbsp;</span>
                         ))}
@@ -168,6 +154,12 @@ const App = () => {
           )}
         </div>
       </div>
+
+      <Pagination
+        currentPage={currentPage}
+        totalPages={totalPages}
+        onPageChange={onPageChange}
+      />
     </div>
   );
 };

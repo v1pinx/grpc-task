@@ -77,16 +77,16 @@ proto.question.QuestionServicePromiseClient =
 /**
  * @const
  * @type {!grpc.web.MethodDescriptor<
- *   !proto.question.Empty,
+ *   !proto.question.AllQuestion,
  *   !proto.question.QuestionList>}
  */
 const methodDescriptor_QuestionService_GetAllQuestions = new grpc.web.MethodDescriptor(
   '/question.QuestionService/GetAllQuestions',
   grpc.web.MethodType.UNARY,
-  proto.question.Empty,
+  proto.question.AllQuestion,
   proto.question.QuestionList,
   /**
-   * @param {!proto.question.Empty} request
+   * @param {!proto.question.AllQuestion} request
    * @return {!Uint8Array}
    */
   function(request) {
@@ -97,7 +97,7 @@ const methodDescriptor_QuestionService_GetAllQuestions = new grpc.web.MethodDesc
 
 
 /**
- * @param {!proto.question.Empty} request The
+ * @param {!proto.question.AllQuestion} request The
  *     request proto
  * @param {?Object<string, string>} metadata User defined
  *     call metadata
@@ -118,7 +118,7 @@ proto.question.QuestionServiceClient.prototype.getAllQuestions =
 
 
 /**
- * @param {!proto.question.Empty} request The
+ * @param {!proto.question.AllQuestion} request The
  *     request proto
  * @param {?Object<string, string>=} metadata User defined
  *     call metadata
