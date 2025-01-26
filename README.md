@@ -61,10 +61,10 @@ cd grpc-task
     
 3.  Create a `.env` file in the `server` directory, and copy the content from `.env.example` into the new `.env` file.
     
-4.  Update the `MONGODB_URI` in the `.env` file with your own MongoDB URI or use the following for testing purposes (Do **not** misuse this):
+4.  Update the `MONGODB_URI` in the `.env` file with your own MongoDB URI or use the following for testing purposes:
     
     ```env
-    MONGODB_URI=mongodb+srv://vipindev665:bX0opTBpHPF9Qtz6@cluster0.jnbgy.mongodb.net
+    mongodb+srv://read-only-user-1:TpbAGI4xwW1n6YMB@cluster0.jnbgy.mongodb.net
     ```
     Note: Use responsibly.
     
@@ -114,7 +114,7 @@ cd grpc-task
     
 2.  Update the MONGODB_URI with your MONGODB_URI in `docker-compose.yml` or  use the following for testing purposes:
 	```
-	MONGODB_URI=mongodb+srv://vipindev665:bX0opTBpHPF9Qtz6@cluster0.jnbgy.mongodb.net
+	mongodb+srv://read-only-user-1:TpbAGI4xwW1n6YMB@cluster0.jnbgy.mongodb.net
 	```
 	Note: Use responsibly.
     
