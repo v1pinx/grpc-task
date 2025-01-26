@@ -132,10 +132,10 @@ cd grpc-task
 -   **MongoDB URI**: Make sure to replace the `MONGODB_URI` in the `.env` and `docker-compose.yml` file with your own MongoDB connection string. You can also use the provided test URI for testing purposes only.
 -   **Envoy Proxy**: The Envoy proxy is responsible for handling HTTP/2 traffic from the client and converting it to HTTP/1.1 for compatibility with browsers or clients that do not support HTTP/2.
 
-
 ## References
 
-  1. **Official documentation for gRPC-Node**
+1.  **gRPC-Node Documentation**  
+    Official documentation for gRPC-Node:  
     https://grpc.io/docs/languages/node/basics/
     
 2.  **gRPC-Web Proxy**  
@@ -160,4 +160,4 @@ cd grpc-task
     
 7.  **Node.js Documentation**  
     Official Node.js documentation:  
-    https://nodejs.org/en/docs
+    https://nodejs.org/en/docs/
