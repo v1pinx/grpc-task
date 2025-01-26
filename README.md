@@ -8,12 +8,12 @@ Before setting up the project, ensure you have the following installed:
 
 -   **Node.js** 
 -   **npm**
--   **Envoy Proxy** 
+-   **Envoy Proxy**
 -   **Docker** & **Docker Compose** (optional, for using Docker images)
 
 ----------
 
-## Setup & Running (For Linux)
+## Setup & Running (Using @grpc-web/proxy)
 
 ### 1. Clone the Repository
 
@@ -73,19 +73,12 @@ cd grpc-task
     ```bash
     npm start
     ```
-    
-
-### 4. Proxy Setup (Envoy)
-
-1.  Ensure you are in the root directory of the project.
-    
-2.  Run the Envoy proxy:
-    
+    The server starts, but you won't be able to access the API responses directly in a browser because gRPC uses HTTP/2, which browsers cannot natively interact with for API calls. To resolve this, set up a gRPC-Web Proxy that listens on port 8080 and forwards requests to the gRPC server running on localhost:9090. This enables browser-based gRPC-Web clients to communicate with the gRPC server.
     ```bash
-    envoy -c envoy.yaml
+    npx @grpc-web/proxy --target http://localhost:9090 --listen 8080
     ```
     
-    The Envoy proxy is responsible for handling HTTP/2 traffic from the client and converting it to HTTP/1.1 for compatibility with browsers or clients that do not support HTTP/2.
+    The proxy handles HTTP/1.1 requests from the browser, converts them to HTTP/2 for gRPC, and relays responses back to the browser in HTTP/1.1.
     
 
 ---------
