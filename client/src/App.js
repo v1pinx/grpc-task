@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useMemo } from "react";
+import React, { useState, useEffect } from "react";
 import { QuestionServiceClient } from "./generated/question_grpc_web_pb";
 import {
   AllQuestion,

@@ -112,15 +112,17 @@ server.addService(questionPackage.QuestionService.service, {
   GetQuestionByTypeAndSearchString,
 });
 
+const PORT = process.env.PORT || 9090;
+
 server.bindAsync(
-  `0.0.0.0:${process.env.PORT}`,
+  `0.0.0.0:${PORT}`,
   gRPC.ServerCredentials.createInsecure(),
   (error) => {
     if (error) {
       console.error(error);
       return;
     }
-    console.log(`Server is running on http://0.0.0.0:${process.env.PORT}`);
+    console.log(`Server is running on http://0.0.0.0:${PORT}`);
     server.start();
   }
 );
